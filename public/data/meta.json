@@ -1,0 +1,20 @@
+{
+  "generatedAt": "2026-07-18T12:49:06.704Z",
+  "source": "HmIP_Export.zip",
+  "rooms": [
+    "Wohnzimmer",
+    "Schlafzimmer",
+    "Büro",
+    "Bad"
+  ],
+  "colors": {
+    "Wohnzimmer": "#e07a3d",
+    "Schlafzimmer": "#2f6f8f",
+    "Büro": "#3d8b6e",
+    "Bad": "#8b5a9e"
+  },
+  "firstTs": 1733482928680,
+  "lastTs": 1784377759118,
+  "totalRawPoints": 350751,
+  "roomCount": 4
+}

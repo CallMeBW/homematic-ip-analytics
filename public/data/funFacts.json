@@ -1,0 +1,219 @@
+[
+  {
+    "id": "span",
+    "icon": "calendar",
+    "title": "Observation window",
+    "text": "06.12.2024, 12:02 → 18.07.2026, 14:29 · 350.751 raw samples"
+  },
+  {
+    "id": "global-cold",
+    "icon": "snowflake",
+    "title": "Apartment record low",
+    "text": "10.7°C in Bad on 23.01.2026, 18:48",
+    "value": 10.7,
+    "room": "Bad"
+  },
+  {
+    "id": "global-hot",
+    "icon": "sun",
+    "title": "Apartment record high",
+    "text": "33.3°C in Schlafzimmer on 28.06.2026, 10:46",
+    "value": 33.3,
+    "room": "Schlafzimmer"
+  },
+  {
+    "id": "warmest-room",
+    "icon": "home",
+    "title": "Warmest room overall",
+    "text": "Wohnzimmer averages 20.68°C",
+    "room": "Wohnzimmer"
+  },
+  {
+    "id": "coldest-room",
+    "icon": "home",
+    "title": "Coolest room overall",
+    "text": "Bad averages 20.26°C",
+    "room": "Bad"
+  },
+  {
+    "id": "stable",
+    "icon": "wave",
+    "title": "Most stable climate",
+    "text": "Wohnzimmer (σ = 1.88°C)",
+    "room": "Wohnzimmer"
+  },
+  {
+    "id": "volatile",
+    "icon": "wave",
+    "title": "Most variable climate",
+    "text": "Büro (σ = 2.19°C)",
+    "room": "Büro"
+  },
+  {
+    "id": "spread-wide",
+    "icon": "split",
+    "title": "Biggest room-to-room spread",
+    "text": "5.62°C on 2026-06-28 (coolest 26.32°C → warmest 31.94°C)"
+  },
+  {
+    "id": "spread-tight",
+    "icon": "split",
+    "title": "Most even day",
+    "text": "Only 0.14°C between rooms on 2026-03-05"
+  },
+  {
+    "id": "coldest-day",
+    "icon": "calendar",
+    "title": "Coldest apartment day",
+    "text": "15.67°C average on 2025-12-26"
+  },
+  {
+    "id": "warmest-day",
+    "icon": "calendar",
+    "title": "Warmest apartment day",
+    "text": "29.7°C average on 2026-06-28"
+  },
+  {
+    "id": "wohnzimmer-coldest",
+    "icon": "snowflake",
+    "title": "Coldest in Wohnzimmer",
+    "text": "14.8°C on 23.11.2025, 18:23",
+    "value": 14.8,
+    "room": "Wohnzimmer"
+  },
+  {
+    "id": "wohnzimmer-warmest",
+    "icon": "sun",
+    "title": "Warmest in Wohnzimmer",
+    "text": "30.4°C on 02.07.2025, 09:51",
+    "value": 30.4,
+    "room": "Wohnzimmer"
+  },
+  {
+    "id": "wohnzimmer-diurnal",
+    "icon": "clock",
+    "title": "Wohnzimmer daily rhythm",
+    "text": "Coldest around 5:00 (20.51°C), warmest around 20:00 (21.65°C)",
+    "room": "Wohnzimmer"
+  },
+  {
+    "id": "wohnzimmer-heatup",
+    "icon": "flame",
+    "title": "Wohnzimmer heat-up time",
+    "text": "After raising the setpoint, it takes ~54 min on average to catch up",
+    "value": 54,
+    "room": "Wohnzimmer"
+  },
+  {
+    "id": "schlafzimmer-coldest",
+    "icon": "snowflake",
+    "title": "Coldest in Schlafzimmer",
+    "text": "13.9°C on 20.01.2025, 19:57",
+    "value": 13.9,
+    "room": "Schlafzimmer"
+  },
+  {
+    "id": "schlafzimmer-warmest",
+    "icon": "sun",
+    "title": "Warmest in Schlafzimmer",
+    "text": "33.3°C on 28.06.2026, 10:46",
+    "value": 33.3,
+    "room": "Schlafzimmer"
+  },
+  {
+    "id": "schlafzimmer-diurnal",
+    "icon": "clock",
+    "title": "Schlafzimmer daily rhythm",
+    "text": "Coldest around 5:00 (20.62°C), warmest around 11:00 (21.72°C)",
+    "room": "Schlafzimmer"
+  },
+  {
+    "id": "schlafzimmer-heatup",
+    "icon": "flame",
+    "title": "Schlafzimmer heat-up time",
+    "text": "After raising the setpoint, it takes ~43 min on average to catch up",
+    "value": 43,
+    "room": "Schlafzimmer"
+  },
+  {
+    "id": "buro-coldest",
+    "icon": "snowflake",
+    "title": "Coldest in Büro",
+    "text": "13.5°C on 28.11.2025, 18:59",
+    "value": 13.5,
+    "room": "Büro"
+  },
+  {
+    "id": "buro-warmest",
+    "icon": "sun",
+    "title": "Warmest in Büro",
+    "text": "31.9°C on 28.06.2026, 12:26",
+    "value": 31.9,
+    "room": "Büro"
+  },
+  {
+    "id": "buro-diurnal",
+    "icon": "clock",
+    "title": "Büro daily rhythm",
+    "text": "Coldest around 5:00 (20.97°C), warmest around 10:00 (22.02°C)",
+    "room": "Büro"
+  },
+  {
+    "id": "buro-heatup",
+    "icon": "flame",
+    "title": "Büro heat-up time",
+    "text": "After raising the setpoint, it takes ~54 min on average to catch up",
+    "value": 54,
+    "room": "Büro"
+  },
+  {
+    "id": "bad-coldest",
+    "icon": "snowflake",
+    "title": "Coldest in Bad",
+    "text": "10.7°C on 23.01.2026, 18:48",
+    "value": 10.7,
+    "room": "Bad"
+  },
+  {
+    "id": "bad-warmest",
+    "icon": "sun",
+    "title": "Warmest in Bad",
+    "text": "31.0°C on 28.06.2026, 09:38",
+    "value": 31,
+    "room": "Bad"
+  },
+  {
+    "id": "bad-diurnal",
+    "icon": "clock",
+    "title": "Bad daily rhythm",
+    "text": "Coldest around 5:00 (20.26°C), warmest around 11:00 (21.47°C)",
+    "room": "Bad"
+  },
+  {
+    "id": "bad-heatup",
+    "icon": "flame",
+    "title": "Bad heat-up time",
+    "text": "After raising the setpoint, it takes ~67 min on average to catch up",
+    "value": 67,
+    "room": "Bad"
+  },
+  {
+    "id": "setback",
+    "icon": "moon",
+    "title": "Strongest day/night setback",
+    "text": "Bad: days run 0.71°C warmer than nights",
+    "room": "Bad"
+  },
+  {
+    "id": "corr",
+    "icon": "link",
+    "title": "Tightest room pair",
+    "text": "Wohnzimmer ↔ Schlafzimmer (r = 0.925)"
+  },
+  {
+    "id": "season",
+    "icon": "leaf",
+    "title": "Seasonal swing",
+    "text": "Heating-season room average 19.9°C vs summer 24.5°C"
+  }
+]
