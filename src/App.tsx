@@ -274,11 +274,7 @@ export default function App() {
       </LazyMount>
 
       <footer className="footer">
-        <p>
-          Reusable pipeline: drop a new <code>HmIP_Export*.zip</code> into <code>data/</code>, run{" "}
-          <code>npm run ingest</code>, then refresh. Generated{" "}
-          {new Date(meta.generatedAt).toLocaleString("de-DE")}.
-        </p>
+        <p>Generated {new Date(meta.generatedAt).toLocaleString("de-DE")}.</p>
       </footer>
     </div>
   );
