@@ -1,16 +1,36 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  CalendarRange,
+  CircleCheck,
+  Clock3,
+  Flame,
+  Home,
+  Moon,
+  ScanSearch,
+  SlidersHorizontal,
+  Snowflake,
+  Sun,
+  TrendingUp,
+} from "lucide-react";
 import { DailyProgressionChart, ApartmentSpreadChart } from "./components/DailyCharts";
 import {
-  CorrelationList,
   DistributionChart,
   HourlyProfileChart,
   MonthlyChart,
-  RoomRadar,
   WeekdayChart,
 } from "./components/PatternCharts";
 import { HeatmapCalendar, RoomCompareBars } from "./components/Heatmap";
+import { FunFactsSection } from "./components/FunFacts";
 import { RoomExplorer } from "./components/RoomExplorer";
+import { YearlyCompare } from "./components/YearlyCompare";
+import { AcEffectSection } from "./components/AcEffect";
+import { HeatingSeasonsSection } from "./components/HeatingSeasons";
+import { LazyMount } from "./components/LazyMount";
+import { SectionHead } from "./components/SectionHead";
 import { fmtDate, fmtTemp } from "./lib/format";
+import { iconForRoom } from "./lib/roomIcons";
+import { loadRoomDetail } from "./lib/roomData";
 import {
   loadJson,
   type Charts,
@@ -60,7 +80,7 @@ export default function App() {
 
   useEffect(() => {
     if (!roomSlug) return;
-    loadJson<RoomDetail>(`/data/rooms/${roomSlug}.json`)
+    loadRoomDetail(roomSlug)
       .then(setRoomDetail)
       .catch((e: Error) => console.error(e));
   }, [roomSlug]);
@@ -69,7 +89,7 @@ export default function App() {
     if (!data) return;
     const slug = data.overview.rooms.find((r) => r.room === heatRoom)?.slug;
     if (!slug) return;
-    loadJson<RoomDetail>(`/data/rooms/${slug}.json`).then((d) => setHeatDays(d.daily));
+    loadRoomDetail(slug).then((d) => setHeatDays(d.daily));
   }, [heatRoom, data]);
 
   const selectedSummary = useMemo(
@@ -109,61 +129,78 @@ export default function App() {
           {fmtDate(meta.firstTs)} to {fmtDate(meta.lastTs)}.
         </p>
         <p className="hero__meta">
-          Source <code>{meta.source}</code> · {meta.totalRawPoints.toLocaleString("de-DE")} samples ·{" "}
+          Homematic IP Thermostats · {meta.totalRawPoints.toLocaleString("de-DE")} samples ·{" "}
           {kpis.daysCovered} days
         </p>
       </header>
 
       <section className="kpi-strip">
-        <Kpi label="Apartment avg" value={fmtTemp(kpis.apartmentAvg)} />
-        <Kpi label="Record low" value={fmtTemp(kpis.recordLow)} tone="cool" />
-        <Kpi label="Record high" value={fmtTemp(kpis.recordHigh)} tone="warm" />
-        <Kpi label="Comfort share" value={`${kpis.avgComfortPct}%`} hint="time in 20–22.5°C" />
-        <Kpi label="Warmest room" value={kpis.warmestRoom} />
-        <Kpi label="Coolest room" value={kpis.coldestRoom} />
-        <Kpi label="Setpoint tweaks" value={kpis.totalSetpointChanges.toLocaleString("de-DE")} />
+        <Kpi icon={Snowflake} label="Record low" value={fmtTemp(kpis.recordLow)} tone="cool" />
+        <Kpi icon={Home} label="Apartment avg" value={fmtTemp(kpis.apartmentAvg)} />
+        <Kpi icon={Flame} label="Record high" value={fmtTemp(kpis.recordHigh)} tone="warm" />
+        <Kpi
+          icon={CircleCheck}
+          label="Comfort share"
+          value={`${kpis.avgComfortPct}%`}
+          hint="time in 20–22.5°C"
+        />
+        <Kpi icon={Sun} label="Warmest room" value={kpis.warmestRoom} />
+        <Kpi icon={Moon} label="Coolest room" value={kpis.coldestRoom} />
+        <Kpi
+          icon={SlidersHorizontal}
+          label="Setpoint tweaks"
+          value={kpis.totalSetpointChanges.toLocaleString("de-DE")}
+          hint="during detected heating seasons"
+        />
       </section>
 
-      <section className="fun-facts">
-        <div className="section-head">
-          <h2>Fun facts from your data</h2>
-          <p>Highlights, extremes, and patterns worth knowing</p>
-        </div>
-        <div className="fun-facts__grid">
-          {funFacts.map((f) => (
-            <article key={f.id} className="fact">
-              <h3>{f.title}</h3>
-              <p>{f.text}</p>
-              {f.room ? <span className="fact__room">{f.room}</span> : null}
-            </article>
-          ))}
-        </div>
-      </section>
+      <YearlyCompare yearly={overview.yearly} />
 
-      <section className="section">
-        <div className="section-head">
-          <h2>Temperature over time</h2>
-          <p>Hover points for exact values · use the brush under charts to zoom</p>
-        </div>
-        <DailyProgressionChart rooms={meta.rooms} colors={meta.colors} daily={charts.daily} />
-        <ApartmentSpreadChart apartmentDaily={charts.apartmentDaily} />
-        <div className="grid-2">
+      <HeatingSeasonsSection
+        seasons={overview.heatingSeasons ?? meta.heatingSeasons ?? []}
+        firstTs={meta.firstTs}
+        lastTs={meta.lastTs}
+      />
+
+      <FunFactsSection facts={funFacts} />
+
+      <LazyMount minHeight={720}>
+        <section className="section">
+          <SectionHead icon={TrendingUp} title="Temperature over time">
+            Hover points for exact values · brush to zoom · toggle rooms on multi-line charts
+          </SectionHead>
+          <DailyProgressionChart rooms={meta.rooms} colors={meta.colors} daily={charts.daily} />
+          <ApartmentSpreadChart apartmentDaily={charts.apartmentDaily} />
           <RoomCompareBars rooms={overview.rooms} />
-          <RoomRadar rooms={overview.rooms} />
-        </div>
-      </section>
+        </section>
+      </LazyMount>
 
-      <section className="section">
-        <div className="section-head">
-          <h2>Rhythms & seasons</h2>
-          <p>Hour-of-day fingerprints, weekday habits, monthly drift</p>
-        </div>
-        <div className="grid-2">
-          <HourlyProfileChart rooms={meta.rooms} colors={meta.colors} byHour={charts.byHour} />
-          <WeekdayChart rooms={meta.rooms} colors={meta.colors} byWeekday={charts.byWeekday} />
-        </div>
-        <MonthlyChart rooms={meta.rooms} colors={meta.colors} monthly={charts.monthly} />
-        <div className="grid-2">
+      <LazyMount minHeight={900}>
+        <section className="section">
+          <SectionHead icon={Clock3} title="Rhythms & seasons">
+            Hour-of-day and weekday patterns split by detected heating seasons vs off-season
+          </SectionHead>
+          <div className="grid-2">
+            <HourlyProfileChart
+              rooms={meta.rooms}
+              colors={meta.colors}
+              byHour={charts.byHour}
+              byHourHeating={charts.byHourHeating}
+              byHourOffSeason={charts.byHourOffSeason}
+              heatingHint="Detected seasons"
+              offSeasonHint="Outside seasons"
+            />
+            <WeekdayChart
+              rooms={meta.rooms}
+              colors={meta.colors}
+              byWeekday={charts.byWeekday}
+              byWeekdayHeating={charts.byWeekdayHeating}
+              byWeekdayOffSeason={charts.byWeekdayOffSeason}
+              heatingHint="Detected seasons"
+              offSeasonHint="Outside seasons"
+            />
+          </div>
+          <MonthlyChart rooms={meta.rooms} colors={meta.colors} monthly={charts.monthly} />
           <DistributionChart
             rooms={meta.rooms}
             colors={meta.colors}
@@ -171,60 +208,76 @@ export default function App() {
             selected={distRoom}
             onSelect={setDistRoom}
           />
-          <CorrelationList correlations={charts.correlations} />
-        </div>
-      </section>
+        </section>
+      </LazyMount>
 
-      <section className="section">
-        <div className="section-head">
-          <h2>Calendar heatmaps</h2>
-          <p>Each cell is one day — hover to read the daily average</p>
-        </div>
-        <div className="room-pills">
-          {meta.rooms.map((room) => (
-            <button
-              key={room}
-              type="button"
-              className={room === heatRoom ? "pill active" : "pill"}
-              style={{ ["--pill" as string]: meta.colors[room] }}
-              onClick={() => setHeatRoom(room)}
-            >
-              {room}
-            </button>
-          ))}
-        </div>
-        <HeatmapCalendar room={heatRoom} color={meta.colors[heatRoom]} days={heatDays} />
-      </section>
+      {charts.acEffect ? (
+        <LazyMount minHeight={420}>
+          <AcEffectSection ac={charts.acEffect} colors={meta.colors} />
+        </LazyMount>
+      ) : null}
 
-      <section className="section">
-        <div className="section-head">
-          <h2>Room deep-dive</h2>
-          <p>Actual vs setpoint, heating gap, heat-up timing, wild days</p>
-        </div>
-        <div className="room-pills">
-          {overview.rooms.map((r) => (
-            <button
-              key={r.slug}
-              type="button"
-              className={r.slug === roomSlug ? "pill active" : "pill"}
-              style={{ ["--pill" as string]: r.color }}
-              onClick={() => setRoomSlug(r.slug)}
-            >
-              {r.room}
-            </button>
-          ))}
-        </div>
-        {roomDetail && selectedSummary ? (
-          <RoomExplorer detail={roomDetail} summary={selectedSummary} />
-        ) : (
-          <p className="empty-note">Loading room series…</p>
-        )}
-      </section>
+      <LazyMount minHeight={280}>
+        <section className="section">
+          <SectionHead icon={CalendarRange} title="Calendar heatmaps">
+            Each cell is one day — hover to read the daily average
+          </SectionHead>
+          <div className="room-pills">
+            {meta.rooms.map((room) => {
+              const RoomIcon = iconForRoom(room);
+              return (
+                <button
+                  key={room}
+                  type="button"
+                  className={room === heatRoom ? "pill active" : "pill"}
+                  style={{ ["--pill" as string]: meta.colors[room] }}
+                  onClick={() => setHeatRoom(room)}
+                >
+                  <RoomIcon className="pill__icon" aria-hidden size={14} strokeWidth={2} />
+                  {room}
+                </button>
+              );
+            })}
+          </div>
+          <HeatmapCalendar room={heatRoom} color={meta.colors[heatRoom]} days={heatDays} />
+        </section>
+      </LazyMount>
+
+      <LazyMount minHeight={720}>
+        <section className="section">
+          <SectionHead icon={ScanSearch} title="Room deep-dive">
+            Actual vs setpoint in detected heating seasons; setpoint hidden in summer park
+          </SectionHead>
+          <div className="room-pills">
+            {overview.rooms.map((r) => {
+              const RoomIcon = iconForRoom(r.room);
+              return (
+                <button
+                  key={r.slug}
+                  type="button"
+                  className={r.slug === roomSlug ? "pill active" : "pill"}
+                  style={{ ["--pill" as string]: r.color }}
+                  onClick={() => setRoomSlug(r.slug)}
+                >
+                  <RoomIcon className="pill__icon" aria-hidden size={14} strokeWidth={2} />
+                  {r.room}
+                </button>
+              );
+            })}
+          </div>
+          {roomDetail && selectedSummary ? (
+            <RoomExplorer detail={roomDetail} summary={selectedSummary} />
+          ) : (
+            <p className="empty-note">Loading room series…</p>
+          )}
+        </section>
+      </LazyMount>
 
       <footer className="footer">
         <p>
           Reusable pipeline: drop a new <code>HmIP_Export*.zip</code> into <code>data/</code>, run{" "}
-          <code>npm run ingest</code>, then refresh. Generated {new Date(meta.generatedAt).toLocaleString("de-DE")}.
+          <code>npm run ingest</code>, then refresh. Generated{" "}
+          {new Date(meta.generatedAt).toLocaleString("de-DE")}.
         </p>
       </footer>
     </div>
@@ -232,11 +285,13 @@ export default function App() {
 }
 
 function Kpi({
+  icon: Icon,
   label,
   value,
   hint,
   tone,
 }: {
+  icon: LucideIcon;
   label: string;
   value: string;
   hint?: string;
@@ -244,9 +299,52 @@ function Kpi({
 }) {
   return (
     <div className={`kpi ${tone ? `kpi--${tone}` : ""}`}>
-      <span className="kpi__label">{label}</span>
-      <span className="kpi__value">{value}</span>
+      <span className="kpi__top">
+        <Icon className="kpi__icon" aria-hidden size={15} strokeWidth={2} />
+        <span className="kpi__label">{label}</span>
+      </span>
+      <KpiValue>{value}</KpiValue>
       {hint ? <span className="kpi__hint">{hint}</span> : null}
     </div>
+  );
+}
+
+/** Shrink font until the value fits on one line inside the KPI tile. */
+function KpiValue({ children }: { children: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const fit = () => {
+      const parent = el.parentElement;
+      if (!parent) return;
+      const cs = getComputedStyle(parent);
+      const avail =
+        parent.clientWidth -
+        parseFloat(cs.paddingLeft) -
+        parseFloat(cs.paddingRight);
+      const maxPx = 23.2; // ~1.45rem
+      const minPx = 12;
+      let size = maxPx;
+      el.style.fontSize = `${size}px`;
+      el.style.whiteSpace = "nowrap";
+      while (el.scrollWidth > avail && size > minPx) {
+        size -= 0.5;
+        el.style.fontSize = `${size}px`;
+      }
+    };
+
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(el.parentElement!);
+    return () => ro.disconnect();
+  }, [children]);
+
+  return (
+    <span ref={ref} className="kpi__value">
+      {children}
+    </span>
   );
 }

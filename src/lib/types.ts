@@ -1,3 +1,11 @@
+export type HeatingSeason = {
+  start: string;
+  end: string;
+  startTs: number;
+  endTs: number;
+  days: number;
+};
+
 export type Meta = {
   generatedAt: string;
   source: string;
@@ -7,6 +15,12 @@ export type Meta = {
   lastTs: number;
   totalRawPoints: number;
   roomCount: number;
+  seasons?: {
+    heating: string;
+    offSeason: string;
+    intervals: string[];
+  };
+  heatingSeasons?: HeatingSeason[];
 };
 
 export type RoomSummary = {
@@ -34,8 +48,24 @@ export type RoomSummary = {
   warmestHour: number | null;
   setpointChanges: number;
   avgHeatUpMinutes: number | null;
+  heatingActiveDays?: number;
+  heatingActivePct?: number;
   firstTs: number;
   lastTs: number;
+};
+
+export type YearlyClimate = {
+  year: number;
+  min: number;
+  max: number;
+  median: number;
+  avg: number;
+  dailyMedian: number | null;
+  days: number;
+  samples: number;
+  deltaMedian?: number;
+  deltaMin?: number;
+  deltaMax?: number;
 };
 
 export type Overview = {
@@ -50,10 +80,13 @@ export type Overview = {
     totalSetpointChanges: number;
     daysCovered: number;
   };
+  yearly: YearlyClimate[];
+  heatingSeasons?: HeatingSeason[];
 };
 
 export type FunFact = {
   id: string;
+  group?: "apartment" | "rooms" | string;
   icon: string;
   title: string;
   text: string;
@@ -61,12 +94,32 @@ export type FunFact = {
   room?: string;
 };
 
+export type AcEffectData = {
+  room: string;
+  season: string;
+  kpis: {
+    coolingEvents: number;
+    avgCoolingDrop: number | null;
+  };
+  coolingEvents: Array<{
+    t: number;
+    endT: number;
+    from: number;
+    to: number;
+    drop: number;
+    minutes: number;
+  }>;
+};
+
 export type Charts = {
   daily: Array<Record<string, number | string>>;
   monthly: Array<Record<string, number | string | null>>;
   byHour: Array<Record<string, number | null>>;
+  byHourHeating?: Array<Record<string, number | null>>;
+  byHourOffSeason?: Array<Record<string, number | null>>;
   byWeekday: Array<Record<string, number | string | null>>;
-  correlations: Array<{ a: string; b: string; r: number; n: number }>;
+  byWeekdayHeating?: Array<Record<string, number | string | null>>;
+  byWeekdayOffSeason?: Array<Record<string, number | string | null>>;
   distributions: Record<string, Array<{ x: number; count: number }>>;
   apartmentDaily: Array<{
     t: number;
@@ -76,6 +129,7 @@ export type Charts = {
     max: number;
     spread: number;
   }>;
+  acEffect?: AcEffectData;
 };
 
 export type RoomDetail = {
@@ -83,18 +137,14 @@ export type RoomDetail = {
   color: string;
   series: {
     actual: Array<{ t: number; v: number }>;
-    setpoint: Array<{ t: number; v: number }>;
+    setpoint: Array<{ t: number; v: number | null }>;
     gap: Array<{ t: number; v: number }>;
   };
   recentHourly: {
     actual: Array<{ t: number; v: number }>;
-    setpoint: Array<{ t: number; v: number }>;
+    setpoint: Array<{ t: number; v: number | null }>;
   };
   daily: Array<{ date: string; t: number; avg: number; min: number; max: number; range: number }>;
-  byHour: Array<{ hour: number; avg: number | null; n: number }>;
-  byWeekday: Array<{ dow: number; label: string; avg: number | null; n: number }>;
-  setpointChanges: Array<{ t: number; from: number; to: number; delta: number }>;
-  heatUps: Array<{ t: number; minutes: number; from: number; to: number }>;
 };
 
 export async function loadJson<T>(url: string): Promise<T> {

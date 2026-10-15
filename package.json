@@ -4,14 +4,16 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 5678 --strictPort",
     "ingest": "node scripts/ingest.mjs",
+    "weather": "node scripts/fetch-weather.mjs",
     "build": "npm run ingest && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
     "adm-zip": "^0.6.0",
+    "lucide-react": "^1.57.0",
     "papaparse": "^5.5.4",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

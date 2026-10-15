@@ -1,11 +1,11 @@
 import { ChartCard } from "./ChartCard";
 import { ChartFrame, SoftTooltip } from "./chartTheme";
 import { fmtDate, fmtTemp } from "../lib/format";
+import { RoomToggles, useRoomVisibility } from "./SeriesControls";
 import {
   AreaChart,
   Brush,
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   XAxis,
@@ -19,11 +19,20 @@ type Props = {
 };
 
 export function DailyProgressionChart({ rooms, colors, daily }: Props) {
+  const { visibleRooms, toggle, showAll, isVisible } = useRoomVisibility(rooms);
+
   return (
     <ChartCard
       title="Daily temperature progression"
-      subtitle="Apartment rooms over the full export — hover any day, drag the brush to zoom"
+      subtitle="Hover any day, drag the brush to zoom — toggle rooms to untangle overlapping lines"
     >
+      <RoomToggles
+        rooms={rooms}
+        colors={colors}
+        isVisible={isVisible}
+        onToggle={toggle}
+        onShowAll={showAll}
+      />
       <ChartFrame height={380}>
         <LineChart data={daily} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
@@ -49,8 +58,7 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
             labelFormatter={(l) => fmtDate(Number(l))}
             valueFormatter={(v) => fmtTemp(v)}
           />
-          <Legend />
-          {rooms.map((room) => (
+          {visibleRooms.map((room) => (
             <Line
               key={room}
               type="monotone"

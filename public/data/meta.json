@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-07-18T12:49:06.704Z",
-  "source": "HmIP_Export.zip",
+  "generatedAt": "2026-10-15T20:04:12.987Z",
+  "source": "HmIP_Export_EC1D_15_31_2026_08_31.zip",
   "rooms": [
     "Wohnzimmer",
     "Schlafzimmer",
@@ -11,10 +11,35 @@
     "Wohnzimmer": "#e07a3d",
     "Schlafzimmer": "#2f6f8f",
     "Büro": "#3d8b6e",
-    "Bad": "#8b5a9e"
+    "Bad": "#8b5a9e",
+    "Apartment": "#1a2332"
   },
   "firstTs": 1733482928680,
-  "lastTs": 1784377759118,
-  "totalRawPoints": 350751,
-  "roomCount": 4
+  "lastTs": 1792088853224,
+  "totalRawPoints": 374333,
+  "roomCount": 4,
+  "seasons": {
+    "heating": "Detected heating seasons (onset→offset)",
+    "offSeason": "Off-season (outside heating intervals)",
+    "intervals": [
+      "2024-12-06 → 2025-04-20",
+      "2025-10-04 → 2026-04-23"
+    ]
+  },
+  "heatingSeasons": [
+    {
+      "start": "2024-12-06",
+      "end": "2025-04-20",
+      "startTs": 1733443200000,
+      "endTs": 1745107200000,
+      "days": 136
+    },
+    {
+      "start": "2025-10-04",
+      "end": "2026-04-23",
+      "startTs": 1759536000000,
+      "endTs": 1776902400000,
+      "days": 202
+    }
+  ]
 }
