@@ -141,17 +141,16 @@ export function HeatmapCalendar({
       const y = Number(date.slice(0, 4));
       const m = Number(date.slice(5, 7));
       if (m === lastMonth && y === lastYear) continue;
-      const yearChanged = lastYear !== -1 && y !== lastYear;
       const prev = labels[labels.length - 1];
-      // Skip cramped labels unless the year rolls over
-      if (prev && w - prev.week < 3 && !yearChanged) {
+      // Skip cramped labels — wider with 'YY suffix (~4 weeks)
+      if (prev && w - prev.week < 4) {
         lastMonth = m;
         lastYear = y;
         continue;
       }
       labels.push({
         week: w,
-        label: yearChanged || lastYear === -1 ? `${MONTHS[m - 1]} ${y}` : MONTHS[m - 1],
+        label: `${MONTHS[m - 1]} '${String(y).slice(2)}`,
       });
       lastMonth = m;
       lastYear = y;
