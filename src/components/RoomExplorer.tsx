@@ -53,7 +53,6 @@ export function RoomExplorer({ detail, summary }: Props) {
         <Stat label="Average" value={fmtTemp(summary.avg)} />
         <Stat label="Median" value={fmtTemp(summary.p50)} />
         <Stat label="Range" value={`${fmtTemp(summary.min)} – ${fmtTemp(summary.max)}`} />
-        <Stat label="σ (volatility)" value={`${summary.stddev.toFixed(2)}°C`} />
         <Stat label="Comfort band" value={`${summary.comfortPct}%`} hint="20–22.5°C" />
         <Stat
           label="Avg heat-up"
