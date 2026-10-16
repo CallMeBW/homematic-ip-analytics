@@ -1,0 +1,9 @@
+node_modules
+dist
+data/raw
+data/*.zip
+.git
+*.local
+.oxlintrc.json
+README.md
+data/README.md

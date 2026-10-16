@@ -8,14 +8,6 @@
     "room": "Bad"
   },
   {
-    "id": "volatile",
-    "group": "apartment",
-    "icon": "wave",
-    "title": "Most variable climate",
-    "text": "Büro (σ = 2.38°C)",
-    "room": "Büro"
-  },
-  {
     "id": "spread-wide",
     "group": "apartment",
     "icon": "split",

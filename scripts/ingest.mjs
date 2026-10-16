@@ -495,7 +495,6 @@ function main() {
   const warmestRoom = [...roomSummaries].sort((a, b) => b.avg - a.avg)[0];
   const coldestRoom = [...roomSummaries].sort((a, b) => a.avg - b.avg)[0];
   const mostStable = [...roomSummaries].sort((a, b) => a.stddev - b.stddev)[0];
-  const mostVolatile = [...roomSummaries].sort((a, b) => b.stddev - a.stddev)[0];
 
   funFacts.push(
     {
@@ -505,14 +504,6 @@ function main() {
       title: "Most stable climate",
       text: `${mostStable.room} (σ = ${mostStable.stddev}°C)`,
       room: mostStable.room,
-    },
-    {
-      id: "volatile",
-      group: "apartment",
-      icon: "wave",
-      title: "Most variable climate",
-      text: `${mostVolatile.room} (σ = ${mostVolatile.stddev}°C)`,
-      room: mostVolatile.room,
     },
     {
       id: "spread-wide",
