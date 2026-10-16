@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port 5678 --strictPort",
     "ingest": "node scripts/ingest.mjs",
-    "weather": "node scripts/fetch-weather.mjs",
+    "weather": "node scripts/fetch-weather.mjs && node scripts/build-weather-relations.mjs",
+    "weather:relations": "node scripts/build-weather-relations.mjs",
     "build": "npm run ingest && tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview"

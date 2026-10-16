@@ -6,8 +6,9 @@ Local analytics site for Homematic IP thermostat exports. Drop in a new export z
 
 ```bash
 npm install
-npm run ingest   # parses data/*.zip → public/data/
-npm run dev      # http://localhost:5173
+npm run ingest    # parses data/*.zip → public/data/
+npm run weather   # optional: München-Stadt outdoor join for Indoor × outdoor
+npm run dev       # http://localhost:5678
 ```
 
 ## Updating data
@@ -15,7 +16,8 @@ npm run dev      # http://localhost:5173
 1. Export from the Homematic IP app / portal as a zip of CSVs.
 2. Place the zip in `data/` (any `*.zip`; newest wins). You can also extract CSVs directly into `data/raw/`.
 3. Run `npm run ingest`.
-4. Refresh the site.
+4. Optionally `npm run weather` to refresh outdoor relations (Bright Sky / DWD München-Stadt).
+5. Refresh the site.
 
 Raw CSVs and the zip stay local. Processed JSON under `public/data/` is regenerated on each ingest.
 
@@ -26,6 +28,7 @@ Raw CSVs and the zip stay local. Processed JSON under `public/data/` is regenera
 - Apartment min–max band and room-to-room spread
 - Hour-of-day, weekday, and monthly patterns
 - Temperature histograms, correlations, calendar heatmaps
+- Indoor × outdoor: apartment vs München-Stadt weather (after `npm run weather`)
 - Per-room deep dive: actual vs setpoint, heating gap, heat-up timing, wildest days
 
 ## Stack

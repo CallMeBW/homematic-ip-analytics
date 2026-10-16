@@ -96,7 +96,7 @@ export function datesInHeatingSeasons(seasons) {
   return set;
 }
 
-/** Hour + weekday profiles split by detected heating season vs off-season. */
+/** Hour + weekday profiles split by detected heating season vs summer season. */
 export function buildSeasonalProfiles(hourlyActual, heatingSeasonDates) {
   const hourBucketsHeating = Array.from({ length: 24 }, () => []);
   const hourBucketsOff = Array.from({ length: 24 }, () => []);
