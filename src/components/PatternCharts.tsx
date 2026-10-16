@@ -57,7 +57,7 @@ export function HourlyProfileChart({
   return (
     <ChartCard
       title="Typical day (by hour)"
-      subtitle="Diurnal fingerprint — switch heating vs off-season; toggle rooms to isolate lines"
+      subtitle="Diurnal fingerprint — switch heating vs summer season; toggle rooms to isolate lines"
     >
       <SeasonToggles
         value={season}
@@ -220,8 +220,8 @@ export function MonthlyChart({
               name={room}
               stroke={colors[room]}
               strokeWidth={2.5}
-              dot={{ r: 3, strokeWidth: 0 }}
-              activeDot={{ r: 5 }}
+              dot={false}
+              activeDot={{ r: 5, strokeWidth: 0 }}
             />
           ))}
           <Line
