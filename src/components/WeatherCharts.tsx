@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  Brush,
   CartesianGrid,
   ComposedChart,
   Legend,
@@ -15,9 +14,11 @@ import {
 } from "recharts";
 import { ChartCard } from "./ChartCard";
 import { ChartFrame, SoftTooltip } from "./chartTheme";
+import { ZoomBrush } from "./ZoomBrush";
 import { tipDotStyle, tipStyle } from "./tipStyles";
 import { fmtDate, fmtDateTime, fmtTemp } from "../lib/format";
 import { METRIC } from "../lib/metricColors";
+import { useBrushZoom } from "../lib/useBrushZoom";
 import type { WeatherRelations } from "../lib/weatherTypes";
 
 const OUTDOOR = METRIC.outdoor;
@@ -79,13 +80,18 @@ function DayScatterTip({
 type Bundle = WeatherRelations;
 
 export function DualClimateChart({ data, colors }: { data: Bundle["dualSeries"]; colors: Record<string, string> }) {
+  const zoom = useBrushZoom(data, "dual-climate");
   return (
     <ChartCard
       title="Indoor vs outdoor over time"
-      subtitle="Apartment daily mean + München-Stadt outdoor mean — brush to zoom (same idea as daily progression, with weather)"
+      subtitle="Apartment daily mean + München-Stadt outdoor mean — drag on the chart to zoom · brush below to pan or zoom out"
     >
       <ChartFrame height={400}>
-        <ComposedChart data={data} margin={{ top: 8, right: 12, left: 8, bottom: 28 }}>
+        <ComposedChart
+          data={data}
+          margin={{ top: 8, right: 12, left: 8, bottom: 28 }}
+          {...zoom.chartHandlers}
+        >
           <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
           <XAxis
             dataKey="t"
@@ -119,6 +125,7 @@ export function DualClimateChart({ data, colors }: { data: Bundle["dualSeries"];
             }}
           />
           <SoftTooltip
+            disabled={zoom.selecting}
             labelFormatter={(l) => fmtDate(Number(l))}
             valueFormatter={(v) => fmtTemp(v)}
           />
@@ -139,7 +146,14 @@ export function DualClimateChart({ data, colors }: { data: Bundle["dualSeries"];
             strokeWidth={2.25}
             dot={false}
           />
-          <Brush dataKey="t" height={28} stroke={METRIC.brush} tickFormatter={(t) => fmtDate(Number(t))} travellerWidth={10} />
+          <ZoomBrush
+            data={data}
+            stroke={METRIC.brush}
+            brush={zoom.brush}
+            onBrushChange={zoom.onBrushChange}
+            selectLeft={zoom.selectLeft}
+            selectRight={zoom.selectRight}
+          />
         </ComposedChart>
       </ChartFrame>
     </ChartCard>
@@ -147,13 +161,18 @@ export function DualClimateChart({ data, colors }: { data: Bundle["dualSeries"];
 }
 
 export function DeltaChart({ data }: { data: Bundle["deltaSeries"] }) {
+  const zoom = useBrushZoom(data, "delta");
   return (
     <ChartCard
       title="How much warmer is it indoors?"
-      subtitle="Apartment mean minus street temperature each day — above 0°C means indoors is warmer than outdoors; below 0°C means the street is warmer"
+      subtitle="Apartment mean minus street temperature each day — drag on the chart to zoom · brush below to pan or zoom out"
     >
       <ChartFrame height={320}>
-        <ComposedChart data={data} margin={{ top: 8, right: 12, left: 8, bottom: 28 }}>
+        <ComposedChart
+          data={data}
+          margin={{ top: 8, right: 12, left: 8, bottom: 28 }}
+          {...zoom.chartHandlers}
+        >
           <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
           <XAxis
             dataKey="t"
@@ -188,6 +207,7 @@ export function DeltaChart({ data }: { data: Bundle["deltaSeries"] }) {
           />
           <ReferenceLine y={0} stroke="rgba(26,35,50,0.25)" strokeDasharray="3 3" />
           <SoftTooltip
+            disabled={zoom.selecting}
             labelFormatter={(l) => fmtDate(Number(l))}
             valueFormatter={(v) => {
               const n = Number(v);
@@ -204,7 +224,14 @@ export function DeltaChart({ data }: { data: Bundle["deltaSeries"] }) {
             strokeWidth={2}
             dot={false}
           />
-          <Brush dataKey="t" height={28} stroke={METRIC.brush} tickFormatter={(t) => fmtDate(Number(t))} travellerWidth={10} />
+          <ZoomBrush
+            data={data}
+            stroke={METRIC.brush}
+            brush={zoom.brush}
+            onBrushChange={zoom.onBrushChange}
+            selectLeft={zoom.selectLeft}
+            selectRight={zoom.selectRight}
+          />
         </ComposedChart>
       </ChartFrame>
     </ChartCard>

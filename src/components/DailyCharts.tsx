@@ -1,17 +1,12 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChartCard } from "./ChartCard";
 import { ChartFrame, SoftTooltip } from "./chartTheme";
+import { ZoomBrush } from "./ZoomBrush";
 import { fmtDate, fmtTemp } from "../lib/format";
 import { METRIC } from "../lib/metricColors";
+import { useBrushZoom } from "../lib/useBrushZoom";
 import { RoomToggles, useRoomVisibility } from "./SeriesControls";
-import {
-  Brush,
-  CartesianGrid,
-  Line,
-  LineChart,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 type Props = {
   rooms: string[];
@@ -29,13 +24,19 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
   );
   const apartmentColor = colors.Apartment ?? METRIC.apartment;
 
+  const series = useMemo(
+    () => daily.map((d) => ({ t: Number(d.t), ...d })),
+    [daily]
+  );
+  const zoom = useBrushZoom(series, `daily-${mode}`);
+
   return (
     <ChartCard
       title="Daily temperature progression"
       subtitle={
         mode === "apartment"
-          ? "Apartment daily mean — hover any day, drag the brush to zoom"
-          : "Hover any day, drag the brush to zoom — toggle rooms to compare"
+          ? "Apartment daily mean — drag on the chart to zoom · brush below to pan or zoom out"
+          : "Drag on the chart to zoom · brush below to pan — toggle rooms to compare"
       }
     >
       <div className="room-pills" style={{ marginBottom: "0.75rem" }}>
@@ -67,7 +68,7 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
         />
       ) : null}
       <ChartFrame height={380}>
-        <LineChart data={daily} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+        <LineChart data={series} margin={{ top: 8, right: 12, left: 0, bottom: 0 }} {...zoom.chartHandlers}>
           <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
           <XAxis
             dataKey="t"
@@ -88,6 +89,7 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
             tickLine={false}
           />
           <SoftTooltip
+            disabled={zoom.selecting}
             labelFormatter={(l) => fmtDate(Number(l))}
             valueFormatter={(v) => fmtTemp(v)}
           />
@@ -117,12 +119,13 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
               />
             ))
           )}
-          <Brush
-            dataKey="t"
-            height={28}
+          <ZoomBrush
+            data={series}
             stroke={METRIC.brush}
-            tickFormatter={(t) => fmtDate(Number(t))}
-            travellerWidth={10}
+            brush={zoom.brush}
+            onBrushChange={zoom.onBrushChange}
+            selectLeft={zoom.selectLeft}
+            selectRight={zoom.selectRight}
           />
         </LineChart>
       </ChartFrame>

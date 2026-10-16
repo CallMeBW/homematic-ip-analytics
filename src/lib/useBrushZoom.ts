@@ -84,11 +84,16 @@ export function useBrushZoom(data: Point[], resetKey: string) {
   return {
     brush,
     onBrushChange,
-    onMouseDown,
-    onMouseMove,
-    onMouseUp,
     selectLeft,
     selectRight,
     selecting,
+    /** Spread onto LineChart / AreaChart / ComposedChart. */
+    chartHandlers: {
+      onMouseDown,
+      onMouseMove,
+      onMouseUp,
+      onMouseLeave: onMouseUp,
+      style: { userSelect: "none" as const },
+    },
   };
 }

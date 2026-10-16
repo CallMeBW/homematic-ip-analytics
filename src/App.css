@@ -24,6 +24,12 @@
   box-sizing: border-box;
 }
 
+/* Default Brush travellers put labels outside the selection (clipped at the edges).
+   ZoomBrush renders its own inward-flipping labels instead. */
+.recharts-brush-texts {
+  display: none;
+}
+
 html,
 body,
 #root {

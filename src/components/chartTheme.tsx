@@ -47,10 +47,14 @@ export function ChartTip({
 export function SoftTooltip({
   labelFormatter,
   valueFormatter,
+  disabled = false,
 }: {
   labelFormatter?: (label: unknown) => string;
   valueFormatter?: (value: number, name: string) => string;
+  /** Hide while drag-selecting a zoom range. */
+  disabled?: boolean;
 }) {
+  if (disabled) return null;
   return (
     <Tooltip
       content={(props) => (

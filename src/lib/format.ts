@@ -10,6 +10,16 @@ export function fmtDate(ms: number) {
   }).format(new Date(ms));
 }
 
+/** Compact date for brush travellers (fits when labels flip inside). */
+export function fmtBrushDate(ms: number) {
+  return new Intl.DateTimeFormat("de-DE", {
+    timeZone: "Europe/Berlin",
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  }).format(new Date(ms));
+}
+
 export function fmtDateTime(ms: number) {
   return new Intl.DateTimeFormat("de-DE", {
     timeZone: "Europe/Berlin",
