@@ -172,33 +172,157 @@ export function HeatmapCalendar({
   );
 }
 
+const COMFORT_LO = 20;
+const COMFORT_HI = 22.5;
+
 export function RoomCompareBars({ rooms }: { rooms: RoomSummary[] }) {
-  const max = Math.max(...rooms.map((r) => r.avg));
+  const scale = useMemo(() => {
+    const lo = Math.min(...rooms.map((r) => r.p10));
+    const hi = Math.max(...rooms.map((r) => r.p90));
+    const pad = Math.max(0.4, (hi - lo) * 0.08);
+    return { lo: lo - pad, hi: hi + pad };
+  }, [rooms]);
+
+  const ticks = useMemo(() => niceTicks(scale.lo, scale.hi, 5), [scale]);
+  const toPct = (t: number) => ((t - scale.lo) / (scale.hi - scale.lo)) * 100;
+
   return (
-    <ChartCard title="Room averages at a glance" subtitle="Mean actual temperature across the whole export">
-      <ul className="compare-bars">
-        {rooms.map((r) => (
-          <li key={r.room}>
-            <div className="compare-bars__label">
-              <strong>{r.room}</strong>
-              <span>{fmtTemp(r.avg)}</span>
-            </div>
-            <div className="compare-bars__track">
-              <div
-                style={{
-                  width: `${(r.avg / max) * 100}%`,
-                  background: r.color,
-                }}
-              />
-            </div>
-            <div className="compare-bars__meta">
-              p10 {fmtTemp(r.p10)} · p90 {fmtTemp(r.p90)} · comfort {r.comfortPct}%
-            </div>
-          </li>
-        ))}
-      </ul>
+    <ChartCard
+      title="Room averages at a glance"
+      subtitle="Temperature spread (p10–p90) · box is interquartile range · band is comfort 20–22.5°C"
+    >
+      <div className="compare-bars">
+        <div className="compare-bars__axis" aria-hidden>
+          <span className="compare-bars__axis-spacer" />
+          <div className="compare-bars__axis-track">
+            {ticks.map((t) => (
+              <span key={t} className="compare-bars__tick" style={{ left: `${toPct(t)}%` }}>
+                {fmtTemp(t)}
+              </span>
+            ))}
+          </div>
+          <span className="compare-bars__axis-end" />
+        </div>
+
+        <ul className="compare-bars__list">
+          {rooms.map((r) => {
+            const p25 = r.p25 ?? lerp(r.p10, r.p50, 0.5);
+            const p75 = r.p75 ?? lerp(r.p50, r.p90, 0.5);
+            const whiskerL = toPct(r.p10);
+            const whiskerW = Math.max(0.5, toPct(r.p90) - whiskerL);
+            const boxL = toPct(p25);
+            const boxW = Math.max(0.5, toPct(p75) - boxL);
+            const comfortL = toPct(COMFORT_LO);
+            const comfortW = Math.max(0, toPct(COMFORT_HI) - comfortL);
+
+            return (
+              <li key={r.room} className="compare-bars__row">
+                <div className="compare-bars__label">
+                  <strong>{r.room}</strong>
+                  <span className="compare-bars__avg" title="Mean">
+                    {fmtTemp(r.avg)}
+                  </span>
+                </div>
+
+                <div
+                  className="compare-bars__track"
+                  title={`${r.room}: p10 ${fmtTemp(r.p10)} · Q1 ${fmtTemp(p25)} · median ${fmtTemp(r.p50)} · Q3 ${fmtTemp(p75)} · p90 ${fmtTemp(r.p90)} · mean ${fmtTemp(r.avg)}`}
+                >
+                  <div
+                    className="compare-bars__comfort"
+                    style={{ left: `${comfortL}%`, width: `${comfortW}%` }}
+                  />
+                  <div
+                    className="compare-bars__whisker"
+                    style={{ left: `${whiskerL}%`, width: `${whiskerW}%`, background: r.color }}
+                  />
+                  <div
+                    className="compare-bars__cap compare-bars__cap--lo"
+                    style={{ left: `${whiskerL}%`, background: r.color }}
+                  />
+                  <div
+                    className="compare-bars__cap compare-bars__cap--hi"
+                    style={{ left: `${toPct(r.p90)}%`, background: r.color }}
+                  />
+                  <div
+                    className="compare-bars__iqr"
+                    style={{ left: `${boxL}%`, width: `${boxW}%`, background: r.color }}
+                  />
+                  <div className="compare-bars__median" style={{ left: `${toPct(r.p50)}%` }} />
+                  <div
+                    className="compare-bars__mean"
+                    style={{ left: `${toPct(r.avg)}%`, borderColor: r.color }}
+                    title={`Mean ${fmtTemp(r.avg)}`}
+                  />
+                </div>
+
+                <ComfortRing pct={r.comfortPct} color={r.color} />
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="compare-bars__legend" aria-hidden>
+          <span>
+            <i className="compare-bars__legend-box" /> IQR (p25–p75)
+          </span>
+          <span>
+            <i className="compare-bars__legend-median" /> Median
+          </span>
+          <span>
+            <i className="compare-bars__legend-mean" /> Mean
+          </span>
+          <span>
+            <i className="compare-bars__legend-comfort" /> Comfort band
+          </span>
+          <span className="compare-bars__legend-ring">Ring = time in comfort</span>
+        </div>
+      </div>
     </ChartCard>
   );
+}
+
+function ComfortRing({ pct, color }: { pct: number; color: string }) {
+  const r = 15;
+  const c = 2 * Math.PI * r;
+  const clamped = Math.min(100, Math.max(0, pct));
+  const dash = (clamped / 100) * c;
+  return (
+    <div className="comfort-ring" title={`${clamped}% of time in 20–22.5°C`}>
+      <svg viewBox="0 0 40 40" width="40" height="40" aria-hidden>
+        <circle className="comfort-ring__track" cx="20" cy="20" r={r} />
+        <circle
+          className="comfort-ring__fill"
+          cx="20"
+          cy="20"
+          r={r}
+          stroke={color}
+          strokeDasharray={`${dash} ${c - dash}`}
+        />
+      </svg>
+      <span className="comfort-ring__value">{Math.round(clamped)}%</span>
+    </div>
+  );
+}
+
+function lerp(a: number, b: number, t: number) {
+  return a + (b - a) * t;
+}
+
+/** Roughly nice axis ticks between lo and hi. */
+function niceTicks(lo: number, hi: number, count: number) {
+  const span = hi - lo;
+  if (span <= 0) return [lo];
+  const raw = span / Math.max(1, count - 1);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  const step = (norm >= 5 ? 5 : norm >= 2 ? 2 : 1) * mag;
+  const start = Math.ceil(lo / step) * step;
+  const ticks: number[] = [];
+  for (let t = start; t <= hi + 1e-9; t += step) {
+    ticks.push(+t.toFixed(2));
+  }
+  return ticks.length ? ticks : [+lo.toFixed(1), +hi.toFixed(1)];
 }
 
 function roundRect(
