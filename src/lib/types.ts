@@ -139,10 +139,6 @@ export type RoomDetail = {
     setpoint: Array<{ t: number; v: number | null }>;
     gap: Array<{ t: number; v: number }>;
   };
-  recentHourly: {
-    actual: Array<{ t: number; v: number }>;
-    setpoint: Array<{ t: number; v: number | null }>;
-  };
   daily: Array<{ date: string; t: number; avg: number; min: number; max: number; range: number }>;
 };
 

@@ -28,7 +28,6 @@ import {
 } from "./lib/seasons.mjs";
 import {
   alignSeries,
-  compressStepSeries,
   detectCoolingEvents,
   detectSetpointChanges,
   estimateHeatUpEvents,
@@ -352,23 +351,6 @@ function main() {
     );
     const gapForChart = alignedActive.map((p) => ({ t: p.t, v: p.gap }));
 
-    const recentCutoff = Date.now() - 90 * DAY;
-    const recentActual = hourlyActual
-      .filter((p) => p.t >= recentCutoff)
-      .map((p) => ({ t: p.t, v: +p.v.toFixed(2) }));
-    // Seed with last pre-window setpoint so stepAfter forward-fill starts correctly
-    let seed = null;
-    for (let i = setpointGated.length - 1; i >= 0; i--) {
-      if (setpointGated[i].t < recentCutoff) {
-        seed = { t: recentCutoff, v: setpointGated[i].v };
-        break;
-      }
-    }
-    const recentSpRaw = setpointGated.filter((p) => p.t >= recentCutoff);
-    const recentSetpoint = compressStepSeries(
-      seed ? [seed, ...recentSpRaw] : recentSpRaw
-    );
-
     fs.writeFileSync(
       path.join(OUT, "rooms", `${slug(room)}.json`),
       JSON.stringify({
@@ -378,10 +360,6 @@ function main() {
           actual: actualDisplay,
           setpoint: setpointDisplay,
           gap: lttb(gapForChart, DISPLAY_GAP_POINTS),
-        },
-        recentHourly: {
-          actual: recentActual,
-          setpoint: recentSetpoint,
         },
         daily: heatDays,
       })

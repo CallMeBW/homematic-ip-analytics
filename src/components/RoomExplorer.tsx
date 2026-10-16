@@ -8,9 +8,7 @@ import {
   AreaChart,
   Brush,
   CartesianGrid,
-  Legend,
   Line,
-  LineChart,
   XAxis,
   YAxis,
 } from "recharts";
@@ -44,11 +42,6 @@ function mergeActualSetpoint(
 }
 
 export function RoomExplorer({ detail, summary }: Props) {
-  const recentMerged = useMemo(
-    () => mergeActualSetpoint(detail.recentHourly.actual, detail.recentHourly.setpoint),
-    [detail.recentHourly]
-  );
-
   const longMerged = useMemo(
     () => mergeActualSetpoint(detail.series.actual, detail.series.setpoint),
     [detail.series]
@@ -84,59 +77,6 @@ export function RoomExplorer({ detail, summary }: Props) {
           }
         />
       </div>
-
-      <ChartCard
-        title={`${detail.room} — last 90 days (hourly)`}
-        subtitle="Setpoint only inside detected heating seasons (summer park hidden)"
-      >
-        <ChartFrame height={340}>
-          <LineChart data={recentMerged} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-            <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
-            <XAxis
-              dataKey="t"
-              type="number"
-              domain={["dataMin", "dataMax"]}
-              tickFormatter={(t) => fmtDate(Number(t))}
-              minTickGap={40}
-              tick={{ fill: "#5a6575", fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <YAxis
-              tickFormatter={(v) => `${v}°`}
-              width={42}
-              tick={{ fill: "#5a6575", fontSize: 11 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <SoftTooltip
-              labelFormatter={(l) => fmtDateTime(Number(l))}
-              valueFormatter={(v) => fmtTemp(v)}
-            />
-            <Legend />
-            <Line
-              type="monotone"
-              dataKey="actual"
-              name="Actual"
-              stroke={detail.color}
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 4 }}
-            />
-            <Line
-              type="stepAfter"
-              dataKey="setpoint"
-              name="Setpoint"
-              stroke="#1a2332"
-              strokeWidth={1.5}
-              strokeDasharray="5 3"
-              dot={false}
-              connectNulls={false}
-            />
-            <Brush dataKey="t" height={24} stroke={detail.color} tickFormatter={(t) => fmtDate(Number(t))} />
-          </LineChart>
-        </ChartFrame>
-      </ChartCard>
 
       <ChartCard
         title={`${detail.room} — full history`}
