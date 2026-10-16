@@ -23,7 +23,10 @@ type ViewMode = "apartment" | "rooms";
 
 export function DailyProgressionChart({ rooms, colors, daily }: Props) {
   const [mode, setMode] = useState<ViewMode>("apartment");
-  const { visibleRooms, toggle, showAll, isVisible } = useRoomVisibility(rooms);
+  const { visibleRooms, toggle, showAll, showFirst, isVisible } = useRoomVisibility(
+    rooms,
+    { initial: "first" }
+  );
   const apartmentColor = colors.Apartment ?? METRIC.apartment;
 
   return (
@@ -32,7 +35,7 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
       subtitle={
         mode === "apartment"
           ? "Apartment daily mean — hover any day, drag the brush to zoom"
-          : "Hover any day, drag the brush to zoom — toggle rooms to untangle overlapping lines"
+          : "Hover any day, drag the brush to zoom — toggle rooms to compare"
       }
     >
       <div className="room-pills" style={{ marginBottom: "0.75rem" }}>
@@ -47,7 +50,7 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
           type="button"
           className={mode === "rooms" ? "pill active" : "pill"}
           onClick={() => {
-            showAll();
+            if (mode !== "rooms") showFirst();
             setMode("rooms");
           }}
         >

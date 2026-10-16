@@ -2,8 +2,16 @@ import { useMemo, useState } from "react";
 import type { LucideIcon } from "lucide-react";
 import { CalendarDays, Flame, Leaf } from "lucide-react";
 
-export function useRoomVisibility(rooms: string[]) {
-  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
+export function useRoomVisibility(
+  rooms: string[],
+  opts?: { initial?: "all" | "first" }
+) {
+  const [hidden, setHidden] = useState<Set<string>>(() => {
+    if (opts?.initial === "first" && rooms.length > 1) {
+      return new Set(rooms.slice(1));
+    }
+    return new Set();
+  });
 
   const visibleRooms = useMemo(
     () => rooms.filter((r) => !hidden.has(r)),
@@ -27,7 +35,18 @@ export function useRoomVisibility(rooms: string[]) {
     setHidden(new Set());
   }
 
-  return { visibleRooms, hidden, toggle, showAll, isVisible: (r: string) => !hidden.has(r) };
+  function showFirst() {
+    setHidden(new Set(rooms.slice(1)));
+  }
+
+  return {
+    visibleRooms,
+    hidden,
+    toggle,
+    showAll,
+    showFirst,
+    isVisible: (r: string) => !hidden.has(r),
+  };
 }
 
 export function RoomToggles({
@@ -77,7 +96,7 @@ export function SeasonToggles({
   value,
   onChange,
   heatingHint = "Detected seasons",
-  offSeasonHint = "Outside seasons",
+  offSeasonHint = "Outside heating seasons",
 }: {
   value: SeasonMode;
   onChange: (v: SeasonMode) => void;
@@ -87,7 +106,7 @@ export function SeasonToggles({
   const opts: Array<{ id: SeasonMode; label: string; hint: string; icon: LucideIcon }> = [
     { id: "all", label: "All year", hint: "Full export", icon: CalendarDays },
     { id: "heating", label: "Heating", hint: heatingHint, icon: Flame },
-    { id: "offSeason", label: "Off-season", hint: offSeasonHint, icon: Leaf },
+    { id: "offSeason", label: "Summer", hint: offSeasonHint, icon: Leaf },
   ];
   return (
     <div className="season-toggles" role="tablist" aria-label="Season filter">
