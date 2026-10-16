@@ -13,7 +13,7 @@ import {
   Sun,
   TrendingUp,
 } from "lucide-react";
-import { DailyProgressionChart, ApartmentSpreadChart } from "./components/DailyCharts";
+import { DailyProgressionChart } from "./components/DailyCharts";
 import {
   DistributionChart,
   HourlyProfileChart,
@@ -28,6 +28,7 @@ import { AcEffectSection } from "./components/AcEffect";
 import { HeatingSeasonsSection } from "./components/HeatingSeasons";
 import { LazyMount } from "./components/LazyMount";
 import { SectionHead } from "./components/SectionHead";
+import { WeatherSection } from "./components/WeatherSection";
 import { fmtDate, fmtTemp } from "./lib/format";
 import { iconForRoom } from "./lib/roomIcons";
 import { loadRoomDetail } from "./lib/roomData";
@@ -180,7 +181,6 @@ export default function App() {
             Hover points for exact values · brush to zoom · toggle rooms on multi-line charts
           </SectionHead>
           <DailyProgressionChart rooms={meta.rooms} colors={meta.colors} daily={charts.daily} />
-          <ApartmentSpreadChart apartmentDaily={charts.apartmentDaily} />
           <RoomCompareBars rooms={overview.rooms} />
         </section>
       </LazyMount>
@@ -226,6 +226,10 @@ export default function App() {
           <AcEffectSection ac={charts.acEffect} colors={meta.colors} />
         </LazyMount>
       ) : null}
+
+      <LazyMount minHeight={640}>
+        <WeatherSection />
+      </LazyMount>
 
       <LazyMount minHeight={280}>
         <section className="section">

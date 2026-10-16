@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { ChartCard } from "./ChartCard";
 import { ChartFrame, SoftTooltip } from "./chartTheme";
 import { fmtDate, fmtTemp } from "../lib/format";
+import { METRIC } from "../lib/metricColors";
 import { RoomToggles, useRoomVisibility } from "./SeriesControls";
 import {
-  AreaChart,
   Brush,
   CartesianGrid,
   Line,
@@ -18,21 +19,50 @@ type Props = {
   daily: Array<Record<string, number | string>>;
 };
 
+type ViewMode = "apartment" | "rooms";
+
 export function DailyProgressionChart({ rooms, colors, daily }: Props) {
+  const [mode, setMode] = useState<ViewMode>("apartment");
   const { visibleRooms, toggle, showAll, isVisible } = useRoomVisibility(rooms);
+  const apartmentColor = colors.Apartment ?? METRIC.apartment;
 
   return (
     <ChartCard
       title="Daily temperature progression"
-      subtitle="Hover any day, drag the brush to zoom — toggle rooms to untangle overlapping lines"
+      subtitle={
+        mode === "apartment"
+          ? "Apartment daily mean — hover any day, drag the brush to zoom"
+          : "Hover any day, drag the brush to zoom — toggle rooms to untangle overlapping lines"
+      }
     >
-      <RoomToggles
-        rooms={rooms}
-        colors={colors}
-        isVisible={isVisible}
-        onToggle={toggle}
-        onShowAll={showAll}
-      />
+      <div className="room-pills" style={{ marginBottom: "0.75rem" }}>
+        <button
+          type="button"
+          className={mode === "apartment" ? "pill active" : "pill"}
+          onClick={() => setMode("apartment")}
+        >
+          Apartment
+        </button>
+        <button
+          type="button"
+          className={mode === "rooms" ? "pill active" : "pill"}
+          onClick={() => {
+            showAll();
+            setMode("rooms");
+          }}
+        >
+          By room
+        </button>
+      </div>
+      {mode === "rooms" ? (
+        <RoomToggles
+          rooms={rooms}
+          colors={colors}
+          isVisible={isVisible}
+          onToggle={toggle}
+          onShowAll={showAll}
+        />
+      ) : null}
       <ChartFrame height={380}>
         <LineChart data={daily} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
           <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
@@ -58,106 +88,40 @@ export function DailyProgressionChart({ rooms, colors, daily }: Props) {
             labelFormatter={(l) => fmtDate(Number(l))}
             valueFormatter={(v) => fmtTemp(v)}
           />
-          {visibleRooms.map((room) => (
+          {mode === "apartment" ? (
             <Line
-              key={room}
               type="monotone"
-              dataKey={room}
-              name={room}
-              stroke={colors[room]}
-              strokeWidth={2}
+              dataKey="avg"
+              name="Apartment"
+              stroke={apartmentColor}
+              strokeWidth={2.25}
               dot={false}
               activeDot={{ r: 4, strokeWidth: 0 }}
               connectNulls
             />
-          ))}
+          ) : (
+            visibleRooms.map((room) => (
+              <Line
+                key={room}
+                type="monotone"
+                dataKey={room}
+                name={room}
+                stroke={colors[room]}
+                strokeWidth={2}
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0 }}
+                connectNulls
+              />
+            ))
+          )}
           <Brush
             dataKey="t"
             height={28}
-            stroke="#1f6f8b"
+            stroke={METRIC.brush}
             tickFormatter={(t) => fmtDate(Number(t))}
             travellerWidth={10}
           />
         </LineChart>
-      </ChartFrame>
-    </ChartCard>
-  );
-}
-
-export function ApartmentSpreadChart({
-  apartmentDaily,
-}: {
-  apartmentDaily: Array<{ t: number; date: string; avg: number; min: number; max: number; spread: number }>;
-}) {
-  return (
-    <ChartCard
-      title="Apartment daily band"
-      subtitle="Min–max across rooms each day, with mean — how uneven was the flat?"
-    >
-      <ChartFrame height={320}>
-        <AreaChart data={apartmentDaily} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
-          <CartesianGrid stroke="rgba(26,35,50,0.08)" vertical={false} />
-          <XAxis
-            dataKey="t"
-            type="number"
-            domain={["dataMin", "dataMax"]}
-            tickFormatter={(t) => fmtDate(Number(t))}
-            minTickGap={48}
-            tick={{ fill: "#5a6575", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tickFormatter={(v) => `${v}°`}
-            width={42}
-            tick={{ fill: "#5a6575", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <SoftTooltip
-            labelFormatter={(l) => fmtDate(Number(l))}
-            valueFormatter={(v, name) =>
-              name === "Room spread" ? `${v.toFixed(2)}°C` : fmtTemp(v)
-            }
-          />
-          <Line
-            type="monotone"
-            dataKey="max"
-            name="Warmest room"
-            stroke="#d4652f"
-            strokeWidth={1.5}
-            dot={false}
-            activeDot={{ r: 3 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="min"
-            name="Coolest room"
-            stroke="#1f6f8b"
-            strokeWidth={1.5}
-            dot={false}
-            activeDot={{ r: 3 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="avg"
-            name="Apartment mean"
-            stroke="#1a2332"
-            strokeWidth={2.25}
-            dot={false}
-            activeDot={{ r: 4 }}
-          />
-          <Line
-            type="monotone"
-            dataKey="spread"
-            name="Room spread"
-            stroke="#8b5a9e"
-            strokeWidth={1.25}
-            strokeDasharray="4 4"
-            dot={false}
-          />
-          <Brush dataKey="t" height={24} stroke="#1f6f8b" tickFormatter={(t) => fmtDate(Number(t))} />
-        </AreaChart>
       </ChartFrame>
     </ChartCard>
   );
