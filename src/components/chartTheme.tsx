@@ -1,7 +1,7 @@
 import { Tooltip } from "recharts";
 import type { ReactNode } from "react";
 import { ResponsiveContainer } from "recharts";
-import { tipStyle } from "./tipStyles";
+import { tipDotStyle, tipStyle } from "./tipStyles";
 
 export { tipStyle } from "./tipStyles";
 
@@ -31,15 +31,7 @@ export function ChartTip({
           key={String(p.dataKey)}
           style={{ display: "flex", gap: 10, alignItems: "center", marginTop: 3 }}
         >
-          <span
-            style={{
-              width: 8,
-              height: 8,
-              borderRadius: 99,
-              background: p.color || "#fff",
-              flexShrink: 0,
-            }}
-          />
+          <span style={tipDotStyle(p.color || "#fff")} />
           <span style={{ opacity: 0.75 }}>{p.name}</span>
           <span style={{ marginLeft: "auto", fontVariantNumeric: "tabular-nums", fontWeight: 600 }}>
             {valueFormatter
