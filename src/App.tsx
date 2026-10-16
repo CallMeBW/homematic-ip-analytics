@@ -24,7 +24,6 @@ import { HeatmapCalendar, RoomCompareBars } from "./components/Heatmap";
 import { FunFactsSection } from "./components/FunFacts";
 import { RoomExplorer } from "./components/RoomExplorer";
 import { YearlyCompare } from "./components/YearlyCompare";
-import { AcEffectSection } from "./components/AcEffect";
 import { HeatingSeasonsSection } from "./components/HeatingSeasons";
 import { LazyMount } from "./components/LazyMount";
 import { SectionHead } from "./components/SectionHead";
@@ -220,12 +219,6 @@ export default function App() {
           />
         </section>
       </LazyMount>
-
-      {charts.acEffect ? (
-        <LazyMount minHeight={420}>
-          <AcEffectSection ac={charts.acEffect} colors={meta.colors} />
-        </LazyMount>
-      ) : null}
 
       <LazyMount minHeight={640}>
         <WeatherSection />
