@@ -7,9 +7,11 @@ type Day = { date: string; avg: number };
 
 const CELL = 11;
 const GAP = 3;
-const DOW_W = 36;
 const STEP = CELL + GAP;
+const TIP_GAP = 8;
+const TIP_EST_W = 148;
 const DOW_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 export function HeatmapCalendar({
   room,
@@ -21,7 +23,12 @@ export function HeatmapCalendar({
   days: Day[];
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [tip, setTip] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [tip, setTip] = useState<{
+    x: number;
+    y: number;
+    text: string;
+    flipX: boolean;
+  } | null>(null);
 
   const model = useMemo(() => {
     if (!days.length) {
@@ -117,6 +124,41 @@ export function HeatmapCalendar({
     }
   }, [model, color]);
 
+  const monthLabels = useMemo(() => {
+    const labels: { week: number; label: string }[] = [];
+    let lastMonth = -1;
+    let lastYear = -1;
+    for (let w = 0; w < model.weeks; w++) {
+      let date = "";
+      for (let d = 0; d < 7; d++) {
+        const key = model.dates[w * 7 + d];
+        if (key) {
+          date = key;
+          break;
+        }
+      }
+      if (!date) continue;
+      const y = Number(date.slice(0, 4));
+      const m = Number(date.slice(5, 7));
+      if (m === lastMonth && y === lastYear) continue;
+      const yearChanged = lastYear !== -1 && y !== lastYear;
+      const prev = labels[labels.length - 1];
+      // Skip cramped labels unless the year rolls over
+      if (prev && w - prev.week < 3 && !yearChanged) {
+        lastMonth = m;
+        lastYear = y;
+        continue;
+      }
+      labels.push({
+        week: w,
+        label: yearChanged || lastYear === -1 ? `${MONTHS[m - 1]} ${y}` : MONTHS[m - 1],
+      });
+      lastMonth = m;
+      lastYear = y;
+    }
+    return labels;
+  }, [model]);
+
   function onMove(e: React.MouseEvent<HTMLCanvasElement>) {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -136,9 +178,12 @@ export function HeatmapCalendar({
       setTip(null);
       return;
     }
+    // Tip lives inside canvas-wrap (not the DOW column) — no DOW_W offset
+    const flipX = x + TIP_GAP + TIP_EST_W > rect.width;
     setTip({
-      x: e.clientX - rect.left + DOW_W + 12,
-      y: e.clientY - rect.top - 8,
+      x: flipX ? x - TIP_GAP : x + TIP_GAP,
+      y: y - 4,
+      flipX,
       text: avg == null ? `${date}: no data` : `${date}: ${fmtTemp(avg)}`,
     });
   }
@@ -149,23 +194,42 @@ export function HeatmapCalendar({
       subtitle={`Daily average · color stretch ${fmtTemp(model.scaleLo)} → ${fmtTemp(model.scaleHi)} (p5–p95; extremes clamp) — hover a day`}
     >
       <div className="heatmap">
-        <div className="heatmap__dow" aria-hidden>
-          {DOW_LABELS.map((d) => (
-            <span key={d}>{d}</span>
-          ))}
+        <div className="heatmap__side" aria-hidden>
+          <div className="heatmap__months-spacer" />
+          <div className="heatmap__dow">
+            {DOW_LABELS.map((d) => (
+              <span key={d}>{d}</span>
+            ))}
+          </div>
         </div>
         <div className="heatmap__canvas-wrap">
-          <canvas
-            ref={canvasRef}
-            className="heatmap__canvas"
-            onMouseMove={onMove}
-            onMouseLeave={() => setTip(null)}
-          />
-          {tip ? (
-            <div className="heatmap__tip" style={{ left: tip.x, top: tip.y }}>
-              {tip.text}
-            </div>
-          ) : null}
+          <div className="heatmap__months" aria-hidden>
+            {monthLabels.map((m) => (
+              <span
+                key={`${m.week}-${m.label}`}
+                className="heatmap__month"
+                style={{ left: m.week * STEP }}
+              >
+                {m.label}
+              </span>
+            ))}
+          </div>
+          <div className="heatmap__plot">
+            <canvas
+              ref={canvasRef}
+              className="heatmap__canvas"
+              onMouseMove={onMove}
+              onMouseLeave={() => setTip(null)}
+            />
+            {tip ? (
+              <div
+                className={`heatmap__tip${tip.flipX ? " heatmap__tip--flip" : ""}`}
+                style={{ left: tip.x, top: tip.y }}
+              >
+                {tip.text}
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
     </ChartCard>
