@@ -32,7 +32,8 @@
       "setpointChanges": 1450,
       "avgHeatUpMinutes": 54,
       "heatingActiveDays": 338,
-      "heatingActivePct": 49.8,
+      "setpointChangeDays": 315,
+      "setpointChangeDayPct": 93.2,
       "firstTs": 1733482957357,
       "lastTs": 1792087313110
     },
@@ -68,7 +69,8 @@
       "setpointChanges": 1810,
       "avgHeatUpMinutes": 43,
       "heatingActiveDays": 338,
-      "heatingActivePct": 49.8,
+      "setpointChangeDays": 319,
+      "setpointChangeDayPct": 94.4,
       "firstTs": 1733482928680,
       "lastTs": 1792086765336
     },
@@ -104,7 +106,8 @@
       "setpointChanges": 699,
       "avgHeatUpMinutes": 54,
       "heatingActiveDays": 338,
-      "heatingActivePct": 49.8,
+      "setpointChangeDays": 240,
+      "setpointChangeDayPct": 71,
       "firstTs": 1733485612120,
       "lastTs": 1792086766738
     },
@@ -140,7 +143,8 @@
       "setpointChanges": 1463,
       "avgHeatUpMinutes": 71,
       "heatingActiveDays": 337,
-      "heatingActivePct": 49.8,
+      "setpointChangeDays": 285,
+      "setpointChangeDayPct": 84.6,
       "firstTs": 1733609841701,
       "lastTs": 1792088853224
     }

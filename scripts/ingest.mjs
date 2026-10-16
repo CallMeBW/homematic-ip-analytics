@@ -333,8 +333,11 @@ function main() {
     const heatingActiveDays = dailyActual.filter((d) =>
       heatingSeasonDates.has(berlinParts(d.t).dateKey)
     ).length;
-    const heatingActivePct = dailyActual.length
-      ? +((100 * heatingActiveDays) / dailyActual.length).toFixed(1)
+    const setpointChangeDays = new Set(
+      significantChanges.map((ch) => berlinParts(ch.t).dateKey)
+    ).size;
+    const setpointChangeDayPct = heatingActiveDays
+      ? +((100 * setpointChangeDays) / heatingActiveDays).toFixed(1)
       : 0;
 
     // Deep-dive chart uses daily averages (full multi-year span is too dense hourly).
@@ -402,7 +405,8 @@ function main() {
       setpointChanges: significantChanges.length,
       avgHeatUpMinutes: avgHeatUp,
       heatingActiveDays,
-      heatingActivePct,
+      setpointChangeDays,
+      setpointChangeDayPct,
       firstTs: actual[0]?.t,
       lastTs: actual[actual.length - 1]?.t,
     });

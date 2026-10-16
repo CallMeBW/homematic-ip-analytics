@@ -51,7 +51,8 @@ export type RoomSummary = {
   setpointChanges: number;
   avgHeatUpMinutes: number | null;
   heatingActiveDays?: number;
-  heatingActivePct?: number;
+  setpointChangeDays?: number;
+  setpointChangeDayPct?: number;
   firstTs: number;
   lastTs: number;
 };

@@ -66,8 +66,8 @@ export function RoomExplorer({ detail, summary }: Props) {
           label="Setpoint changes"
           value={String(summary.setpointChanges)}
           hint={
-            summary.heatingActivePct != null
-              ? `${summary.heatingActivePct}% of days in heating season`
+            summary.setpointChangeDayPct != null
+              ? `on ${summary.setpointChangeDayPct}% of heating-season days`
               : "heating season only"
           }
         />
