@@ -287,9 +287,6 @@ code {
   font-size: 1.2rem;
   font-weight: 560;
   line-height: 1.15;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
 }
 
 .yearly__val--cool {
@@ -300,28 +297,16 @@ code {
   color: var(--warm);
 }
 
-.yearly__delta {
-  font-family: var(--font);
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: var(--muted);
-}
-
-.yearly__delta--warm {
-  color: var(--warm);
-}
-
-.yearly__delta--cool {
-  color: var(--cool);
-}
-
-.heating-seasons__timeline {
-  margin: 0 0 1rem;
-  padding: 0.85rem 1rem 0.75rem;
+.heating-seasons__panel {
+  padding: 1rem 1.1rem 1.05rem;
   background: var(--card);
   backdrop-filter: blur(10px);
   border: 1px solid var(--line);
   border-radius: 14px;
+}
+
+.heating-seasons__timeline {
+  margin: 0;
 }
 
 .heating-seasons__track {
@@ -348,22 +333,17 @@ code {
   color: var(--muted);
 }
 
-.heating-seasons__grid {
+.heating-seasons__seasons {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.75rem;
+  gap: 0.85rem 1.25rem;
+  margin-top: 0.95rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
 }
 
-.heating-seasons__card {
-  background: var(--card);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 1rem 1.1rem 1.05rem;
-}
-
-.heating-seasons__card--meta {
-  border-style: dashed;
+.heating-seasons__season {
+  min-width: 0;
 }
 
 .heating-seasons__head {
@@ -371,13 +351,13 @@ code {
   align-items: baseline;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 
 .heating-seasons__head h3 {
   margin: 0;
   font-family: var(--display);
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 560;
   letter-spacing: -0.02em;
 }
@@ -391,7 +371,7 @@ code {
 
 .heating-seasons__range {
   margin: 0;
-  font-size: 0.92rem;
+  font-size: 0.9rem;
   color: var(--ink);
   line-height: 1.45;
 }

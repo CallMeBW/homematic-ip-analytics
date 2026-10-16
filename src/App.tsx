@@ -144,8 +144,18 @@ export default function App() {
           value={`${kpis.avgComfortPct}%`}
           hint="time in 20–22.5°C"
         />
-        <Kpi icon={Sun} label="Warmest room" value={kpis.warmestRoom} />
-        <Kpi icon={Moon} label="Coolest room" value={kpis.coldestRoom} />
+        <Kpi
+          icon={Sun}
+          label="Warmest room"
+          value={kpis.warmestRoom}
+          hint={roomAvgHint(overview.rooms, kpis.warmestRoom)}
+        />
+        <Kpi
+          icon={Moon}
+          label="Coolest room"
+          value={kpis.coldestRoom}
+          hint={roomAvgHint(overview.rooms, kpis.coldestRoom)}
+        />
         <Kpi
           icon={SlidersHorizontal}
           label="Setpoint tweaks"
@@ -178,7 +188,7 @@ export default function App() {
       <LazyMount minHeight={900}>
         <section className="section">
           <SectionHead icon={Clock3} title="Rhythms & seasons">
-            Hour-of-day and weekday patterns split by detected heating seasons vs off-season
+            Hour-of-day and weekday patterns split by detected heating seasons vs summer season
           </SectionHead>
           <div className="grid-2">
             <HourlyProfileChart
@@ -188,7 +198,7 @@ export default function App() {
               byHourHeating={charts.byHourHeating}
               byHourOffSeason={charts.byHourOffSeason}
               heatingHint="Detected seasons"
-              offSeasonHint="Outside seasons"
+              offSeasonHint="Outside heating seasons"
             />
             <WeekdayChart
               rooms={meta.rooms}
@@ -197,7 +207,7 @@ export default function App() {
               byWeekdayHeating={charts.byWeekdayHeating}
               byWeekdayOffSeason={charts.byWeekdayOffSeason}
               heatingHint="Detected seasons"
-              offSeasonHint="Outside seasons"
+              offSeasonHint="Outside heating seasons"
             />
           </div>
           <MonthlyChart rooms={meta.rooms} colors={meta.colors} monthly={charts.monthly} />
@@ -278,6 +288,14 @@ export default function App() {
       </footer>
     </div>
   );
+}
+
+function roomAvgHint(
+  rooms: { room: string; avg: number }[],
+  name: string
+): string | undefined {
+  const hit = rooms.find((r) => r.room === name);
+  return hit ? `avg ${fmtTemp(hit.avg)}` : undefined;
 }
 
 function Kpi({

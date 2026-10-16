@@ -2,8 +2,12 @@ import { Sparkles } from "lucide-react";
 import { SectionHead } from "./SectionHead";
 import type { FunFact } from "../lib/types";
 
+const HIDDEN_IDS = new Set(["warmest-room", "coldest-room"]);
+
 export function FunFactsSection({ facts }: { facts: FunFact[] }) {
-  const apartment = facts.filter((f) => f.group !== "rooms");
+  const apartment = facts.filter(
+    (f) => f.group !== "rooms" && !HIDDEN_IDS.has(f.id)
+  );
 
   return (
     <section className="fun-facts">

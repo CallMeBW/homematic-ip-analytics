@@ -127,15 +127,18 @@ function main() {
     const vals = actual.map((p) => p.v);
     for (let i = 0; i < vals.length; i++) allActualVals.push(vals[i]);
 
-    // Yearly climate from hourly (far fewer berlinParts calls than raw samples)
+    // Yearly climate from hourly buckets (cheap berlinParts).
+    // Extremes use bucket min/max so brief raw spikes (e.g. 10.7°C) are not averaged away.
     for (const p of hourlyActual) {
       const { year } = berlinParts(p.t);
-      let yearVals = allActualByYear.get(year);
-      if (!yearVals) {
-        yearVals = [];
-        allActualByYear.set(year, yearVals);
+      let yearBucket = allActualByYear.get(year);
+      if (!yearBucket) {
+        yearBucket = { means: [], mins: [], maxs: [] };
+        allActualByYear.set(year, yearBucket);
       }
-      yearVals.push(p.v);
+      yearBucket.means.push(p.v);
+      yearBucket.mins.push(p.min);
+      yearBucket.maxs.push(p.max);
     }
 
     const sorted = [...vals].sort((a, b) => a - b);
@@ -456,7 +459,7 @@ function main() {
 
   const acEffect = {
     room: AC_ROOM,
-    season: "off-season",
+    season: "summer-season",
     kpis: {
       coolingEvents: coolingEvents.length,
       avgCoolingDrop: coolingEvents.length
@@ -475,29 +478,21 @@ function main() {
   const yearly = [...allActualByYear.keys()]
     .sort((a, b) => a - b)
     .map((year) => {
-      const samples = allActualByYear.get(year);
-      const sorted = [...samples].sort((a, b) => a - b);
+      const bucket = allActualByYear.get(year);
+      const sortedMeans = [...bucket.means].sort((a, b) => a - b);
       const dailyAvgs = dailyAvgsByYear.get(year) || [];
       const dailySorted = [...dailyAvgs].sort((a, b) => a - b);
       return {
         year,
-        min: +sorted[0].toFixed(2),
-        max: +sorted[sorted.length - 1].toFixed(2),
-        median: +percentile(sorted, 0.5).toFixed(2),
-        avg: +mean(samples).toFixed(2),
+        min: +Math.min(...bucket.mins).toFixed(2),
+        max: +Math.max(...bucket.maxs).toFixed(2),
+        median: +percentile(sortedMeans, 0.5).toFixed(2),
+        avg: +mean(bucket.means).toFixed(2),
         dailyMedian: dailySorted.length ? +percentile(dailySorted, 0.5).toFixed(2) : null,
         days: dailyAvgs.length,
-        samples: samples.length,
+        samples: bucket.means.length,
       };
     });
-  for (let i = 1; i < yearly.length; i++) {
-    const prev = yearly[i - 1];
-    const cur = yearly[i];
-    cur.deltaMedian = +(cur.median - prev.median).toFixed(2);
-    cur.deltaMin = +(cur.min - prev.min).toFixed(2);
-    cur.deltaMax = +(cur.max - prev.max).toFixed(2);
-  }
-
   const widestDay = apartmentDaily.reduce(
     (best, d) => (d.spread > best.spread ? d : best),
     apartmentDaily[0]
@@ -521,22 +516,6 @@ function main() {
   const mostVolatile = [...roomSummaries].sort((a, b) => b.stddev - a.stddev)[0];
 
   funFacts.push(
-    {
-      id: "warmest-room",
-      group: "apartment",
-      icon: "home",
-      title: "Warmest room overall",
-      text: `${warmestRoom.room} averages ${warmestRoom.avg}°C`,
-      room: warmestRoom.room,
-    },
-    {
-      id: "coldest-room",
-      group: "apartment",
-      icon: "home",
-      title: "Coolest room overall",
-      text: `${coldestRoom.room} averages ${coldestRoom.avg}°C`,
-      room: coldestRoom.room,
-    },
     {
       id: "stable",
       group: "apartment",
@@ -595,7 +574,7 @@ function main() {
       group: "apartment",
       icon: "leaf",
       title: "Seasonal swing",
-      text: `Heating seasons average ${mean(inSeasonAvgs).toFixed(1)}°C vs off-season ${mean(offSeasonAvgs).toFixed(1)}°C`,
+      text: `Heating seasons average ${mean(inSeasonAvgs).toFixed(1)}°C vs summer season ${mean(offSeasonAvgs).toFixed(1)}°C`,
     });
   }
 
@@ -635,7 +614,7 @@ function main() {
     roomCount: rooms.length,
     seasons: {
       heating: "Detected heating seasons (onset→offset)",
-      offSeason: "Off-season (outside heating intervals)",
+      offSeason: "Summer season (outside heating intervals)",
       intervals: heatingSeasons.map((s) => `${s.start} → ${s.end}`),
     },
     heatingSeasons,
@@ -676,13 +655,6 @@ function main() {
       acEffect,
     })
   );
-
-  // Drop unused weather cache from public if present (fetch via npm run weather when needed)
-  const weatherPath = path.join(OUT, "weather.json");
-  if (fs.existsSync(weatherPath)) {
-    fs.unlinkSync(weatherPath);
-    console.log("Removed unused public/data/weather.json");
-  }
 
   console.log("\nDone.");
   console.log(`  Rooms: ${rooms.join(", ")}`);

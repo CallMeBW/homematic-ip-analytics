@@ -1,21 +1,5 @@
 [
   {
-    "id": "warmest-room",
-    "group": "apartment",
-    "icon": "home",
-    "title": "Warmest room overall",
-    "text": "Wohnzimmer averages 20.9°C",
-    "room": "Wohnzimmer"
-  },
-  {
-    "id": "coldest-room",
-    "group": "apartment",
-    "icon": "home",
-    "title": "Coolest room overall",
-    "text": "Bad averages 20.45°C",
-    "room": "Bad"
-  },
-  {
     "id": "stable",
     "group": "apartment",
     "icon": "wave",
@@ -64,6 +48,6 @@
     "group": "apartment",
     "icon": "leaf",
     "title": "Seasonal swing",
-    "text": "Heating seasons average 19.8°C vs off-season 23.4°C"
+    "text": "Heating seasons average 19.8°C vs summer season 23.4°C"
   }
 ]

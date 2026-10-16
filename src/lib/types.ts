@@ -63,9 +63,6 @@ export type YearlyClimate = {
   dailyMedian: number | null;
   days: number;
   samples: number;
-  deltaMedian?: number;
-  deltaMin?: number;
-  deltaMax?: number;
 };
 
 export type Overview = {
