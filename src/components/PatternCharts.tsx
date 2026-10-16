@@ -16,7 +16,6 @@ import {
   LineChart,
   XAxis,
   YAxis,
-  Cell,
 } from "recharts";
 
 type Common = {
@@ -255,11 +254,10 @@ export function DistributionChart({
   const data = distributions[selected] ?? [];
   const pillColor = colors[selected] ?? "#1a2332";
   const options = [APARTMENT_KEY, ...rooms.filter((r) => r !== APARTMENT_KEY)];
-  const maxCount = data.reduce((m, d) => (d.count > m ? d.count : m), 0) || 1;
   return (
     <ChartCard
       title="Temperature distribution"
-      subtitle="How often each temperature occurs (0.5°C bins) — taller bars are darker"
+      subtitle="How often each temperature occurs (0.5°C bins)"
     >
       <div className="room-pills">
         {options.map((room) => (
@@ -290,16 +288,7 @@ export function DistributionChart({
             labelFormatter={(l) => `${l}°C bin`}
             valueFormatter={(v) => `${v.toLocaleString("de-DE")} samples`}
           />
-          <Bar dataKey="count" name="Samples" radius={[3, 3, 0, 0]}>
-            {data.map((d) => {
-              // Tallest bin = full color; shortest ≈ 28% opacity
-              const t = d.count / maxCount;
-              const alpha = Math.round((0.28 + 0.72 * t) * 255)
-                .toString(16)
-                .padStart(2, "0");
-              return <Cell key={d.x} fill={`${pillColor}${alpha}`} />;
-            })}
-          </Bar>
+          <Bar dataKey="count" name="Samples" fill={pillColor} radius={[3, 3, 0, 0]} />
         </BarChart>
       </ChartFrame>
     </ChartCard>
