@@ -12,8 +12,6 @@ import {
   APARTMENT_COLOR,
   APARTMENT_KEY,
   DAY,
-  DISPLAY_ACTUAL_POINTS,
-  DISPLAY_GAP_POINTS,
   HOUR,
   OUT,
   RAW,
@@ -33,13 +31,11 @@ import {
   estimateHeatUpEvents,
   pivotHourProfiles,
   pivotWeekdayProfiles,
-  sampleOntoTimeline,
 } from "./lib/series.mjs";
 import {
   bucketAverage,
   bucketMeans,
   buildHistogram,
-  lttb,
   mean,
   percentile,
   stddev,
@@ -246,6 +242,7 @@ function main() {
       aligned,
       significantChangesAll,
       dailyActual,
+      dailySetpoint,
       byHour,
       byWeekday,
       sorted,
@@ -285,6 +282,7 @@ function main() {
       aligned,
       significantChangesAll,
       dailyActual,
+      dailySetpoint,
       sorted,
       avg,
       sd,
@@ -339,17 +337,21 @@ function main() {
       ? +((100 * heatingActiveDays) / dailyActual.length).toFixed(1)
       : 0;
 
-    const setpointGated = hourlySetpoint.map((p) => ({
-      t: p.t,
-      v: heatingSeasonDates.has(berlinParts(p.t).dateKey) ? +p.v.toFixed(2) : null,
-    }));
-
-    const actualDisplay = lttb(hourlyActual, DISPLAY_ACTUAL_POINTS);
-    const setpointDisplay = sampleOntoTimeline(
-      actualDisplay.map((p) => p.t),
-      setpointGated
-    );
-    const gapForChart = alignedActive.map((p) => ({ t: p.t, v: p.gap }));
+    // Deep-dive chart uses daily averages (full multi-year span is too dense hourly).
+    const spByDate = new Map(dailySetpoint.map((p) => [berlinParts(p.t).dateKey, p.v]));
+    const actualDisplay = dailyActual.map((p) => ({ t: p.t, v: +p.v.toFixed(2) }));
+    const setpointDisplay = dailyActual.map((p) => {
+      const dateKey = berlinParts(p.t).dateKey;
+      if (!heatingSeasonDates.has(dateKey) || !spByDate.has(dateKey)) {
+        return { t: p.t, v: null };
+      }
+      return { t: p.t, v: +spByDate.get(dateKey).toFixed(2) };
+    });
+    const gapForChart = dailyActual.flatMap((p) => {
+      const dateKey = berlinParts(p.t).dateKey;
+      if (!heatingSeasonDates.has(dateKey) || !spByDate.has(dateKey)) return [];
+      return [{ t: p.t, v: +(p.v - spByDate.get(dateKey)).toFixed(2) }];
+    });
 
     fs.writeFileSync(
       path.join(OUT, "rooms", `${slug(room)}.json`),
@@ -359,7 +361,7 @@ function main() {
         series: {
           actual: actualDisplay,
           setpoint: setpointDisplay,
-          gap: lttb(gapForChart, DISPLAY_GAP_POINTS),
+          gap: gapForChart,
         },
         daily: heatDays,
       })

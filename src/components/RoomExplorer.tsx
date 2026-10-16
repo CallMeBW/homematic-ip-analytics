@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { ChartCard } from "./ChartCard";
 import { ChartFrame, SoftTooltip } from "./chartTheme";
-import { fmtDate, fmtDateTime, fmtTemp } from "../lib/format";
+import { fmtDate, fmtTemp } from "../lib/format";
 import type { RoomDetail, RoomSummary } from "../lib/types";
 import {
   Area,
@@ -80,7 +80,7 @@ export function RoomExplorer({ detail, summary }: Props) {
 
       <ChartCard
         title={`${detail.room} — full history`}
-        subtitle="Setpoint only in heating seasons; brush to zoom"
+        subtitle="Daily averages · setpoint only in heating seasons · brush to zoom"
       >
         <ChartFrame height={300}>
           <AreaChart data={longMerged} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
@@ -109,7 +109,7 @@ export function RoomExplorer({ detail, summary }: Props) {
               tickLine={false}
             />
             <SoftTooltip
-              labelFormatter={(l) => fmtDateTime(Number(l))}
+              labelFormatter={(l) => fmtDate(Number(l))}
               valueFormatter={(v) => fmtTemp(v)}
             />
             <Area

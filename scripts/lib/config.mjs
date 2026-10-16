@@ -21,7 +21,3 @@ export const AC_ROOM = "Wohnzimmer";
 
 export const HOUR = 60 * 60 * 1000;
 export const DAY = 24 * HOUR;
-
-/** Display series budgets (room deep-dive charts). */
-export const DISPLAY_ACTUAL_POINTS = 800;
-export const DISPLAY_GAP_POINTS = 600;

@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-15T20:04:12.987Z",
+  "generatedAt": "2026-10-16T13:44:43.518Z",
   "source": "HmIP_Export_EC1D_15_31_2026_08_31.zip",
   "rooms": [
     "Wohnzimmer",
@@ -20,7 +20,7 @@
   "roomCount": 4,
   "seasons": {
     "heating": "Detected heating seasons (onset→offset)",
-    "offSeason": "Off-season (outside heating intervals)",
+    "offSeason": "Summer season (outside heating intervals)",
     "intervals": [
       "2024-12-06 → 2025-04-20",
       "2025-10-04 → 2026-04-23"
