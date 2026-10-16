@@ -18,7 +18,7 @@ Fill after first create (`python3 scripts/create_coolify_app.py`):
 
 | Item | Value |
 |------|--------|
-| Application UUID | _(set after create)_ |
+| Application UUID | `w1ilk8ijbcz3ljywzmsxklpm` |
 | Private key UUID | `vs51yu411q5oy4ifzm4m0u53` |
 | Server UUID | `bcr6ur88n80qpm4fxb7r1kna` |
 
