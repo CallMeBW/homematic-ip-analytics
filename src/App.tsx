@@ -177,7 +177,7 @@ export default function App() {
       <LazyMount minHeight={720}>
         <section className="section">
           <SectionHead icon={TrendingUp} title="Temperature over time">
-            Hover points for exact values · brush to zoom · toggle rooms on multi-line charts
+            Hover points for exact values · drag on room history to zoom · brush to pan · toggle rooms on multi-line charts
           </SectionHead>
           <DailyProgressionChart rooms={meta.rooms} colors={meta.colors} daily={charts.daily} />
           <RoomCompareBars rooms={overview.rooms} />

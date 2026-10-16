@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { ChartCard } from "./ChartCard";
 import { ChartFrame, SoftTooltip } from "./chartTheme";
 import { fmtDate, fmtTemp } from "../lib/format";
+import { useBrushZoom } from "../lib/useBrushZoom";
 import type { RoomDetail, RoomSummary } from "../lib/types";
 import {
   Area,
@@ -9,6 +10,7 @@ import {
   Brush,
   CartesianGrid,
   Line,
+  ReferenceArea,
   XAxis,
   YAxis,
 } from "recharts";
@@ -47,6 +49,17 @@ export function RoomExplorer({ detail, summary }: Props) {
     [detail.series]
   );
 
+  const {
+    brush,
+    onBrushChange,
+    onMouseDown,
+    onMouseMove,
+    onMouseUp,
+    selectLeft,
+    selectRight,
+    selecting,
+  } = useBrushZoom(longMerged, detail.room);
+
   return (
     <div className="room-explorer">
       <div className="room-explorer__stats">
@@ -79,10 +92,18 @@ export function RoomExplorer({ detail, summary }: Props) {
 
       <ChartCard
         title={`${detail.room} — full history`}
-        subtitle="Daily averages · setpoint only in heating seasons · brush to zoom"
+        subtitle="Daily averages · drag on the chart to zoom · use the bar below to pan or zoom out"
       >
         <ChartFrame height={300}>
-          <AreaChart data={longMerged} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>
+          <AreaChart
+            data={longMerged}
+            margin={{ top: 8, right: 12, left: 0, bottom: 0 }}
+            onMouseDown={onMouseDown}
+            onMouseMove={onMouseMove}
+            onMouseUp={onMouseUp}
+            onMouseLeave={onMouseUp}
+            style={{ userSelect: "none" }}
+          >
             <defs>
               <linearGradient id={`fill-${detail.room}`} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={detail.color} stopOpacity={0.35} />
@@ -107,10 +128,12 @@ export function RoomExplorer({ detail, summary }: Props) {
               axisLine={false}
               tickLine={false}
             />
-            <SoftTooltip
-              labelFormatter={(l) => fmtDate(Number(l))}
-              valueFormatter={(v) => fmtTemp(v)}
-            />
+            {!selecting ? (
+              <SoftTooltip
+                labelFormatter={(l) => fmtDate(Number(l))}
+                valueFormatter={(v) => fmtTemp(v)}
+              />
+            ) : null}
             <Area
               type="monotone"
               dataKey="actual"
@@ -130,7 +153,26 @@ export function RoomExplorer({ detail, summary }: Props) {
               dot={false}
               connectNulls={false}
             />
-            <Brush dataKey="t" height={22} stroke={detail.color} />
+            {selectLeft != null && selectRight != null ? (
+              <ReferenceArea
+                x1={selectLeft}
+                x2={selectRight}
+                stroke={detail.color}
+                strokeOpacity={0.45}
+                fill={detail.color}
+                fillOpacity={0.12}
+              />
+            ) : null}
+            <Brush
+              dataKey="t"
+              height={22}
+              stroke={detail.color}
+              travellerWidth={10}
+              startIndex={brush.startIndex}
+              endIndex={brush.endIndex}
+              onChange={onBrushChange}
+              tickFormatter={(t) => fmtDate(Number(t))}
+            />
           </AreaChart>
         </ChartFrame>
       </ChartCard>
